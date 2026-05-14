@@ -8,11 +8,12 @@ description: >
   a skill's description, workflow, hard rules, or eval coverage. Do NOT use for
   reviewing general code, pull requests, or non-skill markdown files - those are
   separate workflows.
-version: 1.0.0
-author: kwang
 license: MIT
 metadata:
+  version: 1.0.0
+  author: kwang
   spec: agent-skills-1.0
+  lastUpdated: 2024-05-14T10:00:00Z
   tags:
     - QA
     - meta
@@ -68,6 +69,32 @@ for automated checks.
 | Bare agent (only `bash` / `read` / `write` / `edit`) | Manual path |
 | Python 3.10+ available | Either path; validator accelerates checks |
 | Neither available | This skill cannot run |
+
+---
+
+## Inputs
+
+### Required
+
+| Name | Type | Description |
+|---|---|---|
+| Target skill | path | Path to the skill directory to review |
+
+### Optional
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| Review depth | string | `full` | `quick` for automated checks only, `full` for manual review |
+| Apply fixes | boolean | `false` | Whether to automatically apply suggested fixes |
+
+---
+
+## Output
+
+| Artifact | Format | Description |
+|---|---|---|
+| Review report | Markdown | Structured report with compliance, issues, warnings, suggestions |
+| Fixed SKILL.md | Markdown | Only if `apply fixes` is requested |
 
 ---
 

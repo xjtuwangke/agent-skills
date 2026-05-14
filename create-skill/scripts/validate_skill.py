@@ -40,9 +40,12 @@ KNOWN_RUNTIMES = {
     "python", "node", "go", "rust", "ruby",
 }
 
-REQUIRED_TOP_LEVEL = {"name", "description", "version", "author", "license", "metadata"}
+REQUIRED_TOP_LEVEL = {"name", "description", "license", "metadata"}
+ALLOWED_TOP_LEVEL = {"name", "description", "license", "compatibility", "metadata"}
 REQUIRES_KEYS = {"skills", "mcps", "runtimes"}
 SUGGESTS_KEYS = {"skills", "mcps", "runtimes"}
+
+ISO8601_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 MAX_NAME_LEN = 64
 MAX_DESCRIPTION_LEN = 1024
@@ -254,9 +257,9 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
         if key not in fm:
             report.err(f"missing required field: {key}")
 
-    old_top_level = {"tags", "requires", "related", "suggests"}
-    for key in old_top_level:
-        if key in fm:
+    extra_top = set(fm.keys()) - ALLOWED_TOP_LEVEL
+    if extra_top:
+        for key in sorted(extra_top):
             report.err(f"'{key}' must be inside 'metadata', not top-level")
 
     name = fm.get("name")
@@ -300,16 +303,6 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
                     "(see description-patterns.md)"
                 )
 
-    ver = fm.get("version")
-    if ver is not None:
-        if not isinstance(ver, str) or not SEMVER_RE.match(ver):
-            report.err(f"version {ver!r} is not SemVer 2.0 (e.g., 1.0.0)")
-
-    author = fm.get("author")
-    if author is not None:
-        if not isinstance(author, str) or not author.strip():
-            report.err("author must be a non-empty string")
-
     lic = fm.get("license")
     if lic is not None and (not isinstance(lic, str) or not lic.strip()):
         report.err("license must be a non-empty string")
@@ -322,8 +315,32 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
         report.err("metadata must be a mapping")
         return
 
+    if "version" not in meta:
+        report.err("metadata.version is required")
+    else:
+        ver = meta["version"]
+        if not isinstance(ver, str) or not SEMVER_RE.match(ver):
+            report.err(f"metadata.version {ver!r} is not SemVer 2.0 (e.g., 1.0.0)")
+
+    if "author" not in meta:
+        report.err("metadata.author is required")
+    else:
+        author = meta["author"]
+        if not isinstance(author, str) or not author.strip():
+            report.err("metadata.author must be a non-empty string")
+
     if "spec" not in meta:
         report.err("metadata.spec is required")
+
+    if "lastUpdated" not in meta:
+        report.err("metadata.lastUpdated is required")
+    else:
+        lu = meta["lastUpdated"]
+        from datetime import datetime
+        if isinstance(lu, datetime):
+            lu = lu.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if not isinstance(lu, str) or not ISO8601_RE.match(lu):
+            report.err("metadata.lastUpdated must be ISO-8601 UTC (e.g., 2024-05-14T10:00:00Z)")
 
     tags = meta.get("tags")
     if tags is not None:

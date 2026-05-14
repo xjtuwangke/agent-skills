@@ -13,9 +13,10 @@ some, but not all, of these.
 - [ ] `name` matches the directory name and follows kebab-case.
 - [ ] `description` is between 30 and 1024 chars and contains no angle
       brackets.
-- [ ] `version` is SemVer 2.0.
-- [ ] `author` is non-empty.
 - [ ] `license` is set.
+- [ ] `metadata.version` is SemVer 2.0.
+- [ ] `metadata.author` is non-empty.
+- [ ] `metadata.lastUpdated` is ISO-8601 UTC.
 - [ ] `metadata.tags` has at least one role tag (UPPERCASE) AND one domain tag
       (lowercase).
 - [ ] `metadata.requires` has `skills`, `mcps`, `runtimes` keys (empty lists are

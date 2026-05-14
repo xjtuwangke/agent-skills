@@ -8,11 +8,12 @@ description: >
   pending migrations, or migration best practices. Do NOT use for general
   database queries, ORM configuration, or database setup from scratch - those
   are separate workflows.
-version: 1.0.0
-author: kwang
 license: MIT
 metadata:
+  version: 1.0.0
+  author: kwang
   spec: agent-skills-1.0
+  lastUpdated: 2024-05-14T10:00:00Z
   tags:
     - DEV
     - database
@@ -73,6 +74,34 @@ specific CLI tools (Alembic, Knex, Prisma) for faster migration generation.
 | Bare agent (only `bash` / `read` / `write` / `edit`) | Manual path |
 | Python 3.10+ or Node >=18 available | Framework CLI path |
 | Neither available | Manual path still works |
+
+---
+
+## Inputs
+
+### Required
+
+| Name | Type | Description |
+|---|---|---|
+| Migration intent | string | What schema change to make (e.g., "add email column to users") |
+| Framework | string | `alembic`, `knex`, `prisma`, or `django` |
+
+### Optional
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| Database URL | string | `DATABASE_URL` env | Connection string for verification |
+| Run immediately | boolean | `false` | Whether to run the migration after creation |
+| Environment | string | `development` | `development`, `staging`, or `production` |
+
+---
+
+## Output
+
+| Artifact | Format | Description |
+|---|---|---|
+| Migration file | SQL / JS / PY | Framework-specific migration with up/down |
+| Migration log | Text | Execution status and verification results |
 
 ---
 

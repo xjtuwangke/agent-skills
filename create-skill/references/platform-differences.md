@@ -42,8 +42,9 @@ available in Claude Code**. Install to both targets if you want both.
 | `metadata` | optional, free-form | optional, namespaced | required |
 | `disable-model-invocation` | optional | ignored | use `metadata.claude.*` |
 | `user-invocable` | optional | ignored | use `metadata.claude.*` |
-| `version` | **rejected by quick_validate.py** | accepted | required |
-| `author` | **rejected** | accepted | required |
+| `metadata.version` | accepted inside `metadata` | accepted | required |
+| `metadata.author` | accepted inside `metadata` | accepted | required |
+| `metadata.lastUpdated` | accepted inside `metadata` | accepted | required |
 | `metadata.tags` | accepted inside `metadata` | accepted | required |
 | `metadata.requires` | accepted inside `metadata` | accepted | required |
 | `metadata.suggests` | accepted inside `metadata` | accepted | optional |
@@ -54,14 +55,15 @@ When installing to a Claude Code path that runs Anthropic's official validator,
 extra top-level fields would trigger warnings. The strict installer rewrites:
 
 ```yaml
-# Source
+# Source (already compatible)
 name: create-skill
 description: "..."
-version: 1.0.0
-author: kwang
 license: MIT
 metadata:
+  version: 1.0.0
+  author: kwang
   spec: agent-skills-1.0
+  lastUpdated: 2024-05-14T10:00:00Z
   tags: [DEV, meta]
   requires:
     skills: []
@@ -72,7 +74,7 @@ metadata:
     mcps: []
     runtimes: []
 
-# After --target claude-strict
+# After --target claude-strict (no rewrite needed for this structure)
 name: create-skill
 description: "..."
 license: MIT
@@ -80,15 +82,12 @@ metadata:
   version: 1.0.0
   author: kwang
   spec: agent-skills-1.0
+  lastUpdated: 2024-05-14T10:00:00Z
   tags: [DEV, meta]
   requires:
     skills: []
     mcps: []
     runtimes: [bash]
-  suggests:
-    skills: []
-    mcps: []
-    runtimes: []
 ```
 
 OpenCode does not need this rewrite - it accepts extra top-level fields. Use

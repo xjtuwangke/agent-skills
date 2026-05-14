@@ -16,11 +16,12 @@ description: >
   any mention of "{{TRIGGER_1}}", "{{TRIGGER_2}}", "{{TRIGGER_3}}", or requests
   to {{OUTCOME}}. Also use when {{SECONDARY_USE_CASE}}. Do NOT use for
   {{ANTI_TRIGGER_1}} or {{ANTI_TRIGGER_2}} - those are separate workflows.
-version: {{VERSION}}
-author: {{AUTHOR}}
 license: {{LICENSE}}
 metadata:
+  version: {{VERSION}}
+  author: {{AUTHOR}}
   spec: agent-skills-1.0
+  lastUpdated: {{LAST_UPDATED}}
   tags:
     - {{ROLE_TAG}}
     - {{DOMAIN_TAG}}
@@ -54,6 +55,30 @@ after the user invokes it.
 
 - {{ANTI_TRIGGER_1}}
 - {{ANTI_TRIGGER_2}}
+
+---
+
+## Inputs
+
+### Required
+
+| Name | Type | Description |
+|---|---|---|
+| {{INPUT_REQUIRED_1}} | {{INPUT_TYPE_1}} | {{INPUT_DESC_1}} |
+
+### Optional
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| {{INPUT_OPTIONAL_1}} | {{INPUT_TYPE_2}} | {{INPUT_DEFAULT_1}} | {{INPUT_DESC_2}} |
+
+---
+
+## Output
+
+| Artifact | Format | Description |
+|---|---|---|
+| {{OUTPUT_1}} | {{OUTPUT_FORMAT_1}} | {{OUTPUT_DESC_1}} |
 
 ---
 
@@ -178,3 +203,7 @@ top-level SKILL.md under 500 lines; spill detail into `references/`.
 4. **English-only output** is MANDATORY. Add this to Hard Rules in every skill.
 5. **Confirmation Gates** are MANDATORY. Any destructive operation requires
    explicit user confirmation.
+6. **Inputs section** is MANDATORY. Document both required and optional inputs
+   with name, type, and description.
+7. **Output section** is MANDATORY. Document produced artifacts with format and
+   description.

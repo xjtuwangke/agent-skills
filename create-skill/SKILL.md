@@ -11,11 +11,12 @@ description: >
   OpenCode, or running A/B evaluations on skill descriptions. Do NOT use for
   editing arbitrary markdown files, authoring slash commands, or building MCP
   servers - those are separate workflows.
-version: 1.0.0
-author: kwang
 license: MIT
 metadata:
+  version: 1.0.0
+  author: kwang
   spec: agent-skills-1.0
+  lastUpdated: 2024-05-14T10:00:00Z
   tags:
     - DEV
     - meta
@@ -76,6 +77,37 @@ output as the manual path but in one shell call instead of many.
 | Bare agent (only `bash` / `read` / `write` / `edit`) | Manual path |
 | Python 3.10+ available | Either path; accelerators are faster |
 | Neither available | This skill cannot run |
+
+---
+
+## Inputs
+
+### Required
+
+| Name | Type | Description |
+|---|---|---|
+| User intent | string | What the skill should do (e.g., "create a skill for database migrations") |
+| Trigger phrases | list | At least 3 distinct phrases that should trigger the skill |
+| Anti-triggers | list | At least 2 scenarios where the skill should NOT fire |
+
+### Optional
+
+| Name | Type | Default | Description |
+|---|---|---|---|
+| Author | string | `$USER` | Skill author name |
+| Role tag | string | `DEV` | One of `DEV`, `QA`, `BA`, `DEVOPS` |
+| Domain tag | string | `meta` | One of `api`, `database`, `backend`, etc. |
+| Output directory | path | `<cwd>` | Where to create the skill directory |
+
+---
+
+## Output
+
+| Artifact | Format | Description |
+|---|---|---|
+| `<name>/SKILL.md` | Markdown | Complete skill file with frontmatter and body |
+| `<name>/evals/evals.json` | JSON | Trigger test cases (positive, negative, edge) |
+| `<name>/changelog.md` | Markdown | Initial release changelog entry |
 
 ---
 
@@ -349,20 +381,23 @@ Default is symlink; use `--copy` for a literal copy.
 ## Hard Rules
 
 1. `name` MUST match the directory name. Kebab-case
-   `^[a-z0-9]+(-[a-z0-9]+)*$`, `<= 64` chars.
+    `^[a-z0-9]+(-[a-z0-9]+)*$`, `<= 64` chars.
 2. `description` MUST be `<= 1024` chars, MUST contain no angle brackets, MUST
-   list at least one explicit trigger phrase.
-3. `version` MUST be SemVer 2.0 (`^\d+\.\d+\.\d+(-[\w.]+)?$`).
-4. `author` MUST be a non-empty string.
-5. `metadata.tags` MUST include `>= 1` role tag (UPPERCASE) AND `>= 1` domain tag
+    list at least one explicit trigger phrase.
+3. Top-level frontmatter MUST only contain `name`, `description`, `license`,
+    `compatibility` (optional), and `metadata`.
+4. `metadata.version` MUST be SemVer 2.0 (`^\d+\.\d+\.\d+(-[\w.]+)?$`).
+5. `metadata.author` MUST be a non-empty string.
+6. `metadata.lastUpdated` MUST be ISO-8601 UTC (`YYYY-MM-DDTHH:MM:SSZ`).
+7. `metadata.tags` MUST include `>= 1` role tag (UPPERCASE) AND `>= 1` domain tag
     (lowercase).
-6. `metadata.requires` MUST exist with keys `skills`, `mcps`, `runtimes` (empty
+8. `metadata.requires` MUST exist with keys `skills`, `mcps`, `runtimes` (empty
     lists are fine).
-7. `metadata.suggests` (optional) MUST have keys `skills`, `mcps`, `runtimes` if
+9. `metadata.suggests` (optional) MUST have keys `skills`, `mcps`, `runtimes` if
     present. Use it for optional accelerators (e.g., `python >=3.10`) — never
     put required runtimes here.
-8. `tags`, `requires`, `suggests`, and `related` MUST NOT appear at the top
-    level of the frontmatter. They belong inside `metadata`.
+10. `version`, `author`, `tags`, `requires`, `suggests`, `related` MUST NOT appear
+    at the top level of the frontmatter. They belong inside `metadata`.
 9. Dependency strings MUST use pip / PEP 440 style: `name`, `name ==1.0.0`,
    `name >=1.0.0`, `name ~=1.0.0`.
 10. `SKILL.md` body MUST be `<= 500` lines.
@@ -381,6 +416,12 @@ Default is symlink; use `--copy` for a literal copy.
 15. **Confirmation Gates are MANDATORY.** Any skill that performs destructive
       operations (delete, modify config, elevated privileges) MUST STOP and ask
       for explicit user confirmation before proceeding.
+16. **Inputs section is MANDATORY.** Every generated skill MUST include a
+      `## Inputs` section documenting both required and optional inputs with
+      name, type, and description.
+17. **Output section is MANDATORY.** Every generated skill MUST include a
+      `## Output` section documenting what artifacts the skill produces, their
+      format, and a brief description.
 
 Either path (manual or accelerator) must produce output that satisfies these
 rules. If using `scripts/validate_skill.py`, exit 0 == compliant. Without the
@@ -434,7 +475,7 @@ script, walk the rules manually against the new SKILL.md.
 - [ ] Description is "pushy" (explicit trigger phrases + a "Do NOT use for"
       clause).
 - [ ] If installing to claude-strict, `metadata.version` / `metadata.author` /
-      `metadata.tags` / `metadata.requires` / `metadata.related` all exist
+      `metadata.lastUpdated` / `metadata.tags` / `metadata.requires` all exist
       after install.
 - [ ] Generated skill includes `## Pre-execution Check` section.
 - [ ] Generated skill includes `## Safety Boundaries` section with Forbidden

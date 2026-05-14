@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "skill_name": "update-skill",
+  "description": "Evaluate update-skill trigger accuracy",
+  "cases": [
+    {
+      "id": "pos-1",
+      "kind": "positive",
+      "prompt": "Bump the version of my create-skill skill",
+      "should_trigger": true,
+      "assertions": ["agent loads update-skill/SKILL.md"],
+      "notes": "Explicit version bump request"
+    },
+    {
+      "id": "pos-2",
+      "kind": "positive",
+      "prompt": "Update my rate-limiter skill and add a changelog entry",
+      "should_trigger": true,
+      "assertions": ["agent loads update-skill/SKILL.md"],
+      "notes": "Update + changelog request"
+    },
+    {
+      "id": "pos-3",
+      "kind": "positive",
+      "prompt": "Release a new version of the auth skill with the latest fixes",
+      "should_trigger": true,
+      "assertions": ["agent loads update-skill/SKILL.md"],
+      "notes": "Release request"
+    },
+    {
+      "id": "neg-1",
+      "kind": "negative",
+      "prompt": "Create a brand new skill for database migrations",
+      "should_trigger": false,
+      "assertions": ["agent loads create-skill, not update-skill"],
+      "notes": "New skill creation, not update"
+    },
+    {
+      "id": "neg-2",
+      "kind": "negative",
+      "prompt": "Edit this README file to fix a typo",
+      "should_trigger": false,
+      "assertions": ["no skill loaded"],
+      "notes": "Arbitrary markdown edit"
+    },
+    {
+      "id": "edge-1",
+      "kind": "edge",
+      "prompt": "I need to update the skill but also create a new one",
+      "should_trigger": true,
+      "assertions": ["agent may load both create-skill and update-skill"],
+      "notes": "Ambiguous - both skills could fire"
+    }
+  ]
+}

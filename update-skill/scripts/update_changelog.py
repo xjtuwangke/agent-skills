@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+"""
+update_changelog.py - Update or create a skill's changelog.md.
+
+Usage:
+    python update_changelog.py <skill-dir>
+        --version 1.1.0
+        --author "kwang"
+        --generated-by "Claude Code / update-skill"
+        [--added "..."] [--changed "..."] [--fixed "..."]
+        [--removed "..."] [--deprecated "..."]
+
+If --version is omitted, reads it from SKILL.md.
+If changelog.md does not exist, creates it from the template.
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+def parse_frontmatter(text: str) -> dict:
+    if not text.startswith("---\n"):
+        raise ValueError("frontmatter must start with '---' on line 1")
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        raise ValueError("frontmatter must close with '---' on its own line")
+    fm_text = text[4:end]
+
+    try:
+        import yaml
+        data = yaml.safe_load(fm_text) or {}
+        if not isinstance(data, dict):
+            raise ValueError("frontmatter must be a YAML mapping")
+        return data
+    except ImportError:
+        return _parse_yaml_subset(fm_text)
+
+
+def _parse_yaml_subset(text: str) -> dict:
+    lines = text.splitlines()
+    root: dict = {}
+    i = 0
+    while i < len(lines):
+        raw = lines[i]
+        if not raw.strip() or raw.lstrip().startswith("#"):
+            i += 1
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        if indent != 0:
+            i += 1
+            continue
+        if ":" not in raw:
+            raise ValueError(f"malformed line {i+1}: {raw!r}")
+        key, _, rest = raw.partition(":")
+        key = key.strip()
+        rest = rest.strip()
+
+        if rest in (">", "|"):
+            i += 1
+            buf = []
+            while i < len(lines):
+                line = lines[i]
+                if line.strip() == "" or line.startswith(" "):
+                    buf.append(line[2:] if line.startswith("  ") else line.strip())
+                    i += 1
+                else:
+                    break
+            joined = ("\n".join(buf) if rest == "|" else " ".join(b for b in buf if b.strip()))
+            root[key] = joined.strip()
+            continue
+
+        if rest.startswith("[") and rest.endswith("]"):
+            inner = rest[1:-1].strip()
+            items = [x.strip().strip('"').strip("'") for x in inner.split(",") if x.strip()]
+            root[key] = items
+            i += 1
+            continue
+
+        if rest == "":
+            i += 1
+            child = _read_block(lines, i)
+            root[key] = child["data"]
+            i = child["next_i"]
+            continue
+
+        root[key] = _parse_scalar(rest)
+        i += 1
+    return root
+
+
+def _read_block(lines: list[str], start: int):
+    block_lines = []
+    i = start
+    while i < len(lines):
+        raw = lines[i]
+        if raw.strip() == "":
+            i += 1
+            continue
+        indent = len(raw) - len(raw.lstrip())
+        if indent < 2:
+            break
+        block_lines.append(raw[2:])
+        i += 1
+    if block_lines and block_lines[0].lstrip().startswith("- "):
+        items = []
+        for line in block_lines:
+            if line.strip().startswith("- "):
+                items.append(_parse_scalar(line.strip()[2:]))
+            elif items and isinstance(items[-1], str):
+                items[-1] += " " + line.strip()
+        return {"data": items, "next_i": i}
+    sub = _parse_yaml_subset("\n".join(block_lines))
+    return {"data": sub, "next_i": i}
+
+
+def _parse_scalar(s: str):
+    s = s.strip()
+    if (s.startswith('"') and s.endswith('"')) or (s.startswith("'") and s.endswith("'")):
+        return s[1:-1]
+    if s.startswith("[") and s.endswith("]"):
+        inner = s[1:-1].strip()
+        if not inner:
+            return []
+        return [x.strip().strip('"').strip("'") for x in inner.split(",")]
+    if s.lower() in {"true", "yes", "on"}:
+        return True
+    if s.lower() in {"false", "no", "off"}:
+        return False
+    if s.lower() in {"null", "~", ""}:
+        return None
+    try:
+        if "." in s:
+            return float(s)
+        return int(s)
+    except ValueError:
+        return s
+
+
+def build_entry(version: str, date_str: str, author: str, generated_by: str,
+                added: list[str], changed: list[str], fixed: list[str],
+                removed: list[str], deprecated: list[str]) -> str:
+    lines = [f"## [{version}] - {date_str}", ""]
+    for title, items in [
+        ("Added", added),
+        ("Changed", changed),
+        ("Fixed", fixed),
+        ("Removed", removed),
+        ("Deprecated", deprecated),
+    ]:
+        if items:
+            lines.append(f"### {title}")
+            for item in items:
+                lines.append(f"- {item}")
+            lines.append("")
+    lines.extend([
+        f"**Changed by**: {author}",
+        f"**Generated by**: {generated_by}",
+        f"**Timestamp**: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("skill_dir", type=Path, help="Path to the skill directory.")
+    parser.add_argument("--version", help="Version string (reads from SKILL.md if omitted).")
+    parser.add_argument("--author", required=True, help="Who made the change.")
+    parser.add_argument("--generated-by", required=True, help="Tool or model that generated the change.")
+    parser.add_argument("--added", action="append", default=[], help="Added change (repeatable).")
+    parser.add_argument("--changed", action="append", default=[], help="Changed change (repeatable).")
+    parser.add_argument("--fixed", action="append", default=[], help="Fixed change (repeatable).")
+    parser.add_argument("--removed", action="append", default=[], help="Removed change (repeatable).")
+    parser.add_argument("--deprecated", action="append", default=[], help="Deprecated change (repeatable).")
+    args = parser.parse_args()
+
+    skill_dir: Path = args.skill_dir.resolve()
+    skill_md = skill_dir / "SKILL.md"
+    changelog = skill_dir / "changelog.md"
+
+    if not skill_md.exists():
+        print(f"ERROR: SKILL.md not found at {skill_md}", file=sys.stderr)
+        return 1
+
+    version = args.version
+    if not version:
+        text = skill_md.read_text()
+        try:
+            fm = parse_frontmatter(text)
+        except ValueError as e:
+            print(f"ERROR: frontmatter parse error: {e}", file=sys.stderr)
+            return 1
+        version = fm.get("version")
+        if not version or not isinstance(version, str):
+            print("ERROR: could not read version from SKILL.md", file=sys.stderr)
+            return 1
+
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    new_block = build_entry(
+        version, date_str, args.author, args.generated_by,
+        args.added, args.changed, args.fixed, args.removed, args.deprecated,
+    )
+
+    if changelog.exists():
+        existing = changelog.read_text()
+        header_end = existing.find("\n## [")
+        if header_end == -1:
+            updated = existing.rstrip() + "\n\n" + new_block
+        else:
+            updated = existing[:header_end] + "\n" + new_block + existing[header_end + 1:]
+    else:
+        tmpl = Path(__file__).resolve().parent.parent / "templates" / "changelog.md.tmpl"
+        if tmpl.exists():
+            header = tmpl.read_text()
+        else:
+            header = "# Changelog\n\nAll notable changes to this skill are documented in this file.\n\n"
+        updated = header.rstrip() + "\n\n" + new_block
+
+    changelog.write_text(updated)
+    print(f"Updated {changelog} with version {version}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

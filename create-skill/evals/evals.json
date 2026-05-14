@@ -38,7 +38,7 @@
     {
       "id": "pos-004",
       "kind": "positive",
-      "prompt": "Validate my skill at /home/kwang/work/skills/rate-limiter before I publish it.",
+      "prompt": "Validate my skill at ./rate-limiter before I publish it.",
       "should_trigger": true,
       "assertions": [
         "Skill loads SKILL.md",
@@ -48,7 +48,7 @@
     {
       "id": "neg-001",
       "kind": "negative",
-      "prompt": "Please fix the typo on line 12 of /home/kwang/work/skills/rate-limiter/SKILL.md.",
+      "prompt": "Please fix the typo on line 12 of ./rate-limiter/SKILL.md.",
       "should_trigger": false,
       "assertions": [
         "Skill is NOT loaded",

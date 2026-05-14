@@ -9,7 +9,7 @@ description: >
   the change is significant enough to warrant a version change. Do NOT use for
   creating a brand-new skill from scratch - that is create-skill. Do NOT use
   for editing arbitrary markdown files that are not agent skills.
-version: 1.2.0
+version: 1.0.0
 author: kwang
 license: MIT
 tags:

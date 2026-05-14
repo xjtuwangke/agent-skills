@@ -1,4 +1,4 @@
-# /home/kwang/work/skills
+# Agent Skills
 
 Cross-platform AI agent skills for Claude Code and OpenCode, following the
 [Agent Skills Specification](https://agentskills.io).
@@ -89,7 +89,7 @@ Default is symlink; the source in this repo remains authoritative.
 ## Repository Layout
 
 ```
-/home/kwang/work/skills/
+agent-skills/
 |-- README.md                          # this file
 `-- create-skill/                      # the first skill (meta-skill)
     |-- SKILL.md                       # how to create other skills

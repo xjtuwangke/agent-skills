@@ -189,6 +189,6 @@ Claude Code ignores this field.
 | Distribute to teammates who use Claude Code | `--target claude-strict` |
 | Both | both flags on the same invocation |
 
-The source of truth always lives in `/home/kwang/work/skills/<skill>/`. The
-install command creates symlinks (`-s` is the default), so any edit to the
-source file shows up immediately in both platforms.
+The source of truth always lives in the skill repository. The install command
+creates symlinks (`-s` is the default), so any edit to the source file shows up
+immediately in both platforms.

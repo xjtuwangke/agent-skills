@@ -11,7 +11,7 @@ description: >
   OpenCode, or running A/B evaluations on skill descriptions. Do NOT use for
   editing arbitrary markdown files, authoring slash commands, or building MCP
   servers - those are separate workflows.
-version: 1.2.0
+version: 1.0.0
 author: kwang
 license: MIT
 tags:
@@ -90,7 +90,7 @@ Before creating a new skill, verify:
 
 1. **Output directory exists and is writable**:
    ```bash
-   test -d /home/kwang/work/skills/ && test -w /home/kwang/work/skills/
+   test -d <output-dir> && test -w <output-dir>
    ```
 2. **Skill name is available**: No existing directory with the same name.
 3. **Required tools available**: `bash`, `read`, `write`, `edit` are functional.
@@ -172,7 +172,7 @@ Capture answers in a scratchpad. They become the `## Hard Rules` and
 
 ### Manual path
 
-1. Decide the output directory (default: `/home/kwang/work/skills/`).
+1. Decide the output directory (default: current working directory).
 2. Create the skeleton with `bash`:
    ```bash
    mkdir -p <output>/<name>/{references,scripts,assets,evals}
@@ -211,7 +211,7 @@ python create-skill/scripts/init_skill.py <name> \
     --author "<author>" \
     --role DEV|QA|BA|DEVOPS \
     --domain api|database|backend|infra|auth|cli|data|ml|meta \
-    [--output-dir /home/kwang/work/skills]
+    [--output-dir <path>]
 ```
 
 Or `python create-skill/scripts/init_skill.py --interactive` for prompts.
@@ -314,19 +314,19 @@ problem - return to Stage 1.
 
 For OpenCode (user-global):
 ```bash
-ln -s /home/kwang/work/skills/<name> ~/.config/opencode/skills/<name>
+ln -s <repo-path>/<name> ~/.config/opencode/skills/<name>
 ```
 
 For OpenCode (project-local):
 ```bash
 mkdir -p .opencode/skills
-ln -s /home/kwang/work/skills/<name> .opencode/skills/<name>
+ln -s <repo-path>/<name> .opencode/skills/<name>
 ```
 
 For Claude Code (literal copy):
 ```bash
 mkdir -p ~/.claude/skills
-cp -r /home/kwang/work/skills/<name> ~/.claude/skills/<name>
+cp -r <repo-path>/<name> ~/.claude/skills/<name>
 ```
 
 For Claude Code **strict** mode (Anthropic's `quick_validate.py` rejects

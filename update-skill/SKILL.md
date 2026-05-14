@@ -9,7 +9,7 @@ description: >
   the change is significant enough to warrant a version change. Do NOT use for
   creating a brand-new skill from scratch - that is create-skill. Do NOT use
   for editing arbitrary markdown files that are not agent skills.
-version: 1.1.0
+version: 1.2.0
 author: kwang
 license: MIT
 tags:
@@ -72,6 +72,45 @@ automate version parsing, bumping, and changelog formatting.
 | Bare agent (only `bash` / `read` / `write` / `edit`) | Manual path |
 | Python 3.10+ available | Either path; accelerators are faster |
 | Neither available | This skill cannot run |
+
+---
+
+## Pre-execution Check
+
+Before updating a skill, verify:
+
+1. **Target skill exists**: The skill directory and `SKILL.md` must exist.
+2. **Version is parseable**: The current `version` field in frontmatter is valid
+   SemVer.
+3. **Changelog exists or can be created**: `changelog.md` exists, or the
+   template `templates/changelog.md.tmpl` is available.
+4. **Working directory is clean**: No uncommitted changes that could interfere.
+
+If any check fails, STOP and report to the user.
+
+---
+
+## Safety Boundaries
+
+### Forbidden Operations
+
+- MUST NEVER downgrade a version (monotonicity is enforced).
+- MUST NEVER create a changelog entry without a version bump.
+- MUST NEVER modify a skill that fails validation after the update.
+
+### Confirmation Gates
+
+STOP and ask for explicit confirmation before:
+- Bumping major version (breaking change)
+- Overwriting existing changelog entries
+- Updating a skill that is currently installed in production
+
+### Emergency Stop
+
+Immediately abort if:
+- The new version is not strictly greater than the current version
+- The changelog template is missing and `changelog.md` does not exist
+- Validation fails after the update and the user does not want to fix it
 
 ---
 

@@ -80,6 +80,51 @@ specific CLI tools (Alembic, Knex, Prisma) for faster migration generation.
 
 ---
 
+## Pre-execution Check
+
+Before executing any migration operation, verify:
+
+1. **Database connectivity**: Can connect to the target database.
+   ```bash
+   psql $DATABASE_URL -c "SELECT 1" >/dev/null 2>&1 || echo "ERROR: cannot connect"
+   ```
+2. **Migration framework detected**: Project uses a supported framework.
+3. **Working directory correct**: Inside the project root.
+4. **Backup available**: For production databases, confirm a recent backup
+   exists before running migrations.
+
+If any check fails, STOP and report to the user.
+
+---
+
+## Safety Boundaries
+
+### Forbidden Operations
+
+- MUST NEVER run a migration without first reading the migration file.
+- MUST NEVER modify an already-applied migration.
+- MUST NEVER run migrations on production without a tested rollback.
+- MUST NEVER bypass transaction wrappers.
+
+### Confirmation Gates
+
+STOP and ask for explicit confirmation before:
+- Running migrations on a production database
+- Rolling back migrations in production
+- Deleting migration files
+- Modifying the migration history table
+
+### Emergency Stop
+
+Immediately abort if:
+- The database connection fails
+- A migration returns an error during execution
+- The migration file contains destructive operations (DROP, DELETE) without
+  explicit user confirmation
+- The target database is not the intended one (check `DATABASE_URL`)
+
+---
+
 ## Workflow
 
 ### 1. Detect Migration Framework

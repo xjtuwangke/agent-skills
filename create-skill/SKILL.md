@@ -11,7 +11,7 @@ description: >
   OpenCode, or running A/B evaluations on skill descriptions. Do NOT use for
   editing arbitrary markdown files, authoring slash commands, or building MCP
   servers - those are separate workflows.
-version: 1.1.0
+version: 1.2.0
 author: kwang
 license: MIT
 tags:
@@ -81,6 +81,48 @@ output as the manual path but in one shell call instead of many.
 | Bare agent (only `bash` / `read` / `write` / `edit`) | Manual path |
 | Python 3.10+ available | Either path; accelerators are faster |
 | Neither available | This skill cannot run |
+
+---
+
+## Pre-execution Check
+
+Before creating a new skill, verify:
+
+1. **Output directory exists and is writable**:
+   ```bash
+   test -d /home/kwang/work/skills/ && test -w /home/kwang/work/skills/
+   ```
+2. **Skill name is available**: No existing directory with the same name.
+3. **Required tools available**: `bash`, `read`, `write`, `edit` are functional.
+4. **Template files readable**: `templates/SKILL.md.tmpl` and
+   `templates/evals.json.tmpl` exist and are readable.
+
+If any check fails, STOP and report to the user.
+
+---
+
+## Safety Boundaries
+
+### Forbidden Operations
+
+- MUST NEVER overwrite an existing skill directory without user confirmation.
+- MUST NEVER create skills outside the designated output directory.
+- MUST NEVER generate skills with invalid frontmatter (always run validator).
+
+### Confirmation Gates
+
+STOP and ask for explicit confirmation before:
+- Overwriting an existing skill directory
+- Changing the output directory from the default
+- Installing a skill that failed validation
+
+### Emergency Stop
+
+Immediately abort if:
+- The user asks to create a skill with a name that violates naming conventions
+- The template files are missing or corrupted
+- The output directory is not writable
+- A generated skill fails validation and the user insists on installing it
 
 ---
 
@@ -183,6 +225,12 @@ Or `python create-skill/scripts/init_skill.py --interactive` for prompts.
 - See `references/description-patterns.md` for the "pushy description"
   pattern - the description field is the single biggest factor in whether the
   skill triggers.
+- See `templates/skill-template.md` for the canonical structure. Every skill
+  MUST include `## Pre-execution Check` and `## Safety Boundaries` sections.
+- The `## Pre-execution Check` section MUST verify environment, directory,
+  permissions, and state before executing any workflow step.
+- The `## Safety Boundaries` section MUST define Forbidden Operations,
+  Confirmation Gates, and Emergency Stop conditions.
 
 ## Stage 4: Test Cases
 
@@ -323,11 +371,20 @@ Default is symlink; use `--copy` for a literal copy.
    `name >=1.0.0`, `name ~=1.0.0`.
 10. `SKILL.md` body MUST be `<= 500` lines.
 11. Every skill MUST ship at least one entry in `evals/evals.json` before
-     installation.
+      installation.
 12. **ALL output MUST be in English.** This includes SKILL.md content, changelog
-     entries, reference documents, eval cases, and any generated artifacts.
-     The user's natural language for conversation is respected, but all
-     deliverables produced by this skill MUST be written in English.
+      entries, reference documents, eval cases, and any generated artifacts.
+      The user's natural language for conversation is respected, but all
+      deliverables produced by this skill MUST be written in English.
+13. **Pre-execution Check is MANDATORY.** Every generated skill MUST include a
+      `## Pre-execution Check` section that verifies environment, directory,
+      permissions, and state before executing any workflow step.
+14. **Safety Boundaries are MANDATORY.** Every generated skill MUST include a
+      `## Safety Boundaries` section with Forbidden Operations, Confirmation
+      Gates, and Emergency Stop conditions.
+15. **Confirmation Gates are MANDATORY.** Any skill that performs destructive
+      operations (delete, modify config, elevated privileges) MUST STOP and ask
+      for explicit user confirmation before proceeding.
 
 Either path (manual or accelerator) must produce output that satisfies these
 rules. If using `scripts/validate_skill.py`, exit 0 == compliant. Without the
@@ -344,6 +401,7 @@ script, walk the rules manually against the new SKILL.md.
 | Writing a description that actually triggers | `references/description-patterns.md` |
 | How the eval loop works | `references/eval-methodology.md` |
 | Pre-publish gate | `assets/pre-publish-checklist.md` |
+| Canonical skill template (with pre-check and safety) | `templates/skill-template.md` |
 
 ---
 
@@ -382,3 +440,8 @@ script, walk the rules manually against the new SKILL.md.
 - [ ] If installing to claude-strict, `metadata.version` / `metadata.author` /
       `metadata.tags` / `metadata.requires` / `metadata.related` all exist
       after install.
+- [ ] Generated skill includes `## Pre-execution Check` section.
+- [ ] Generated skill includes `## Safety Boundaries` section with Forbidden
+      Operations, Confirmation Gates, and Emergency Stop.
+- [ ] Generated skill follows the canonical template in
+      `templates/skill-template.md`.

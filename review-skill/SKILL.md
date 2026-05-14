@@ -76,6 +76,44 @@ for automated checks.
 
 ---
 
+## Pre-execution Check
+
+Before reviewing a skill, verify:
+
+1. **Target skill exists**: The skill directory and `SKILL.md` must exist.
+2. **Validator available (optional)**: `create-skill/scripts/validate_skill.py`
+   exists if Python is available.
+3. **Read access**: The agent can read the target skill's files.
+
+If any check fails, STOP and report to the user.
+
+---
+
+## Safety Boundaries
+
+### Forbidden Operations
+
+- MUST NEVER modify the target skill without explicit user permission.
+- MUST NEVER approve a skill that fails validation.
+- MUST NEVER skip the manual review even if automated checks pass.
+
+### Confirmation Gates
+
+STOP and ask for explicit confirmation before:
+- Applying fixes to the target skill
+- Modifying the target skill's frontmatter
+- Marking a skill as "approved" when critical issues exist
+
+### Emergency Stop
+
+Immediately abort if:
+- The user asks to approve a skill that fails validation
+- The target skill is missing required sections (Pre-execution Check, Safety
+  Boundaries)
+- The skill under review would cause data loss or security issues if used
+
+---
+
 ## Workflow
 
 ### 1. Identify Target Skill

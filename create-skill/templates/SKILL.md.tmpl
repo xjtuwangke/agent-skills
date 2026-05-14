@@ -50,13 +50,49 @@ after the user invokes it.
 
 ---
 
+## Pre-execution Check
+
+Before executing any workflow step, verify these conditions. If any check
+fails, STOP and report the failure to the user. Do not proceed.
+
+1. **Environment check**: Verify required tools are available.
+2. **Directory check**: Verify the working directory is correct.
+3. **Permission check**: Verify write access to target files.
+4. **State check**: Verify the system is in the expected state.
+
+---
+
 ## Workflow
 
 Step-by-step procedure. Number every step. Keep imperative voice.
 
-1. Step one.
+1. Run the Pre-execution Check above. STOP if any check fails.
 2. Step two.
 3. Step three.
+
+---
+
+## Safety Boundaries
+
+### Forbidden Operations
+
+- MUST NEVER delete production data.
+- MUST NEVER modify files outside the project directory.
+- MUST NEVER execute destructive commands without user confirmation.
+
+### Confirmation Gates
+
+STOP and ask for explicit confirmation before:
+- Deleting files or directories
+- Modifying `.git/`, `.env`, or configuration files
+- Running commands with elevated privileges
+
+### Emergency Stop
+
+Immediately abort if:
+- The user asks to bypass a safety check
+- A command returns an unexpected error
+- Data loss is suspected
 
 ---
 
@@ -68,6 +104,7 @@ constraint, not the rule text.
 - MUST always {{REQUIREMENT_1}}.
 - MUST NEVER {{ANTI_REQUIREMENT_1}}.
 - SHOULD {{RECOMMENDATION_1}}.
+- **ALL output MUST be in English.**
 
 ---
 

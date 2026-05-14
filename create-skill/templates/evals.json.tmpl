@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/agentskills/spec/main/eval-schema.json",
+  "skill_name": "{{NAME}}",
+  "skill_version": "{{VERSION}}",
+  "description": "Trigger and behavior evaluation cases for the {{NAME}} skill.",
+  "cases": [
+    {
+      "id": "pos-001",
+      "kind": "positive",
+      "prompt": "{{POSITIVE_PROMPT_1}}",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads its SKILL.md",
+        "Output addresses the user's request"
+      ],
+      "notes": "Replace with a realistic user prompt that should trigger this skill."
+    },
+    {
+      "id": "pos-002",
+      "kind": "positive",
+      "prompt": "{{POSITIVE_PROMPT_2}}",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads its SKILL.md"
+      ]
+    },
+    {
+      "id": "pos-003",
+      "kind": "positive",
+      "prompt": "{{POSITIVE_PROMPT_3}}",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads its SKILL.md"
+      ]
+    },
+    {
+      "id": "neg-001",
+      "kind": "negative",
+      "prompt": "{{NEGATIVE_PROMPT_1}}",
+      "should_trigger": false,
+      "assertions": [
+        "Skill is NOT loaded",
+        "Agent solves the request without invoking this skill"
+      ],
+      "notes": "A prompt that looks superficially similar but should NOT trigger this skill."
+    },
+    {
+      "id": "neg-002",
+      "kind": "negative",
+      "prompt": "{{NEGATIVE_PROMPT_2}}",
+      "should_trigger": false,
+      "assertions": [
+        "Skill is NOT loaded"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "kind": "edge",
+      "prompt": "{{EDGE_PROMPT_1}}",
+      "should_trigger": null,
+      "assertions": [
+        "Either behavior is acceptable, but note which one occurred"
+      ],
+      "notes": "An ambiguous prompt where either trigger or no-trigger is defensible. Used to measure how the skill handles borderline cases."
+    }
+  ],
+  "thresholds": {
+    "positive_recall_min": 0.80,
+    "negative_precision_min": 0.80,
+    "rounds_max": 3
+  }
+}

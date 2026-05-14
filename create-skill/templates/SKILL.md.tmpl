@@ -1,0 +1,92 @@
+---
+name: {{NAME}}
+description: >
+  Use this skill whenever the user wants to {{ACTION_PHRASE}}. Triggers include
+  any mention of "{{TRIGGER_1}}", "{{TRIGGER_2}}", "{{TRIGGER_3}}", or requests
+  to {{OUTCOME}}. Also use when {{SECONDARY_USE_CASE}}. Do NOT use for
+  {{ANTI_TRIGGER_1}} or {{ANTI_TRIGGER_2}} - those are separate workflows.
+version: {{VERSION}}
+author: {{AUTHOR}}
+license: {{LICENSE}}
+tags:
+  - {{ROLE_TAG}}
+  - {{DOMAIN_TAG}}
+requires:
+  skills: []
+  mcps: []
+  tools: []
+related:
+  skills: []
+  commands: []
+  mcps: []
+metadata:
+  spec: agent-skills-1.0
+  opencode:
+    category: unspecified-high
+---
+
+# {{TITLE}}
+
+One-paragraph charter: what this skill enables, who it is for, what changes
+after the user invokes it.
+
+---
+
+## When to Use
+
+- "{{TRIGGER_1}}"
+- "{{TRIGGER_2}}"
+- "{{TRIGGER_3}}"
+- (add more as discovered)
+
+## When NOT to Use
+
+- {{ANTI_TRIGGER_1}}
+- {{ANTI_TRIGGER_2}}
+
+---
+
+## Workflow
+
+Step-by-step procedure. Number every step. Keep imperative voice.
+
+1. Step one.
+2. Step two.
+3. Step three.
+
+---
+
+## Hard Rules
+
+Constraints that MUST be enforced. Use UPPERCASE for emphasis on the
+constraint, not the rule text.
+
+- MUST always {{REQUIREMENT_1}}.
+- MUST NEVER {{ANTI_REQUIREMENT_1}}.
+- SHOULD {{RECOMMENDATION_1}}.
+
+---
+
+## Verification
+
+How the user (or the agent) knows the skill did the right thing.
+
+- [ ] {{CHECK_1}}
+- [ ] {{CHECK_2}}
+- [ ] {{CHECK_3}}
+
+---
+
+## Common Pitfalls
+
+1. **{{PITFALL_NAME_1}}**. {{DESCRIPTION_1}}.
+   *Fix*: {{FIX_1}}.
+2. **{{PITFALL_NAME_2}}**. {{DESCRIPTION_2}}.
+   *Fix*: {{FIX_2}}.
+
+---
+
+## References
+
+Link to supporting docs in `references/` and external resources here. Keep the
+top-level SKILL.md under 500 lines; spill detail into `references/`.

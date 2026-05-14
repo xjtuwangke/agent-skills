@@ -1,0 +1,98 @@
+{
+  "skill_name": "create-skill",
+  "skill_version": "1.0.0",
+  "description": "Trigger evaluation cases for the create-skill meta-skill.",
+  "cases": [
+    {
+      "id": "pos-001",
+      "kind": "positive",
+      "prompt": "I want to create a new skill for our team that handles JWT token rotation. Help me set it up.",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads SKILL.md",
+        "Agent proposes the 6-stage workflow",
+        "Agent runs init_skill.py or asks for the inputs init_skill.py needs"
+      ]
+    },
+    {
+      "id": "pos-002",
+      "kind": "positive",
+      "prompt": "Can you scaffold a SKILL.md for me? The skill should help with database migration reviews.",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads SKILL.md",
+        "Agent uses templates/SKILL.md.tmpl"
+      ]
+    },
+    {
+      "id": "pos-003",
+      "kind": "positive",
+      "prompt": "My skill never triggers. The description must be wrong. Can you improve it?",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads SKILL.md",
+        "Agent references description-patterns.md",
+        "Agent runs improve_description.py or proposes variants by hand"
+      ]
+    },
+    {
+      "id": "pos-004",
+      "kind": "positive",
+      "prompt": "Validate my skill at /home/kwang/work/skills/rate-limiter before I publish it.",
+      "should_trigger": true,
+      "assertions": [
+        "Skill loads SKILL.md",
+        "Agent runs validate_skill.py and reports the result"
+      ]
+    },
+    {
+      "id": "neg-001",
+      "kind": "negative",
+      "prompt": "Please fix the typo on line 12 of /home/kwang/work/skills/rate-limiter/SKILL.md.",
+      "should_trigger": false,
+      "assertions": [
+        "Skill is NOT loaded",
+        "Agent does a plain edit"
+      ],
+      "notes": "Editing a file that happens to be a SKILL.md is not skill creation."
+    },
+    {
+      "id": "neg-002",
+      "kind": "negative",
+      "prompt": "Write a slash command /deploy that runs our deployment script.",
+      "should_trigger": false,
+      "assertions": [
+        "Skill is NOT loaded",
+        "Agent creates a .opencode/command/ entry or equivalent"
+      ],
+      "notes": "Slash commands are a different artifact; the description explicitly excludes them."
+    },
+    {
+      "id": "neg-003",
+      "kind": "negative",
+      "prompt": "Build an MCP server that wraps the GitHub API.",
+      "should_trigger": false,
+      "assertions": [
+        "Skill is NOT loaded",
+        "Agent uses MCP development workflow"
+      ],
+      "notes": "MCP servers are explicitly excluded by the description."
+    },
+    {
+      "id": "edge-001",
+      "kind": "edge",
+      "prompt": "I have a workflow I keep repeating. How should I save it for next time?",
+      "should_trigger": null,
+      "assertions": [
+        "Either: agent suggests creating a skill (this skill fires)",
+        "Or: agent suggests a saved prompt / slash command and explains why a skill is overkill"
+      ],
+      "notes": "Ambiguous: 'save a workflow' could be a skill, a slash command, or just a note. Either response is defensible if the reasoning is shown."
+    }
+  ],
+  "thresholds": {
+    "positive_recall_min": 0.80,
+    "negative_precision_min": 0.80,
+    "rounds_max": 3
+  }
+}

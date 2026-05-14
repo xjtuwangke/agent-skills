@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "skill_name": "database-migration",
+  "description": "Evaluate database-migration trigger accuracy",
+  "cases": [
+    {
+      "id": "pos-1",
+      "kind": "positive",
+      "prompt": "Create a migration to add an email column to the users table",
+      "should_trigger": true,
+      "assertions": ["agent loads database-migration/SKILL.md"],
+      "notes": "Explicit migration creation request"
+    },
+    {
+      "id": "pos-2",
+      "kind": "positive",
+      "prompt": "Run all pending migrations on the staging database",
+      "should_trigger": true,
+      "assertions": ["agent loads database-migration/SKILL.md"],
+      "notes": "Run migrations request"
+    },
+    {
+      "id": "pos-3",
+      "kind": "positive",
+      "prompt": "Rollback the last migration, I think it broke something",
+      "should_trigger": true,
+      "assertions": ["agent loads database-migration/SKILL.md"],
+      "notes": "Rollback request"
+    },
+    {
+      "id": "pos-4",
+      "kind": "positive",
+      "prompt": "Check if there are any pending migrations",
+      "should_trigger": true,
+      "assertions": ["agent loads database-migration/SKILL.md"],
+      "notes": "Status check"
+    },
+    {
+      "id": "neg-1",
+      "kind": "negative",
+      "prompt": "Query all users who signed up last week",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or general database skill"],
+      "notes": "General query, not migration"
+    },
+    {
+      "id": "neg-2",
+      "kind": "negative",
+      "prompt": "Set up a new PostgreSQL database for my project",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or infra skill"],
+      "notes": "Database setup, not migration"
+    },
+    {
+      "id": "neg-3",
+      "kind": "negative",
+      "prompt": "Create a new Django model for orders",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or backend skill"],
+      "notes": "ORM model, not migration execution"
+    },
+    {
+      "id": "edge-1",
+      "kind": "edge",
+      "prompt": "I need to change the schema but I'm not sure if I need a migration",
+      "should_trigger": true,
+      "assertions": ["agent loads database-migration/SKILL.md and explains"],
+      "notes": "Ambiguous but migration-related"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ description: >
   OpenCode, or running A/B evaluations on skill descriptions. Do NOT use for
   editing arbitrary markdown files, authoring slash commands, or building MCP
   servers - those are separate workflows.
-version: 1.0.0
+version: 1.1.0
 author: kwang
 license: MIT
 tags:
@@ -25,6 +25,11 @@ requires:
 related:
   skills: []
   commands: []
+  mcps: []
+suggests:
+  tools: []
+  runtimes:
+    - python >=3.10
   mcps: []
 metadata:
   spec: agent-skills-1.0
@@ -311,11 +316,14 @@ Default is symlink; use `--copy` for a literal copy.
 6. `requires` MUST exist with keys `skills`, `mcps`, `tools` (empty lists are
    fine).
 7. `related` MUST exist with keys `skills`, `commands`, `mcps` (NOT `tools`).
-8. Dependency strings MUST use pip / PEP 440 style: `name`, `name ==1.0.0`,
+8. `suggests` (optional) MUST have keys `tools`, `runtimes`, `mcps` if present.
+   Use it for optional accelerators (e.g., `python >=3.10`) — never put
+   required tools here.
+9. Dependency strings MUST use pip / PEP 440 style: `name`, `name ==1.0.0`,
    `name >=1.0.0`, `name ~=1.0.0`.
-9. `SKILL.md` body MUST be `<= 500` lines.
-10. Every skill MUST ship at least one entry in `evals/evals.json` before
-    installation.
+10. `SKILL.md` body MUST be `<= 500` lines.
+11. Every skill MUST ship at least one entry in `evals/evals.json` before
+     installation.
 
 Either path (manual or accelerator) must produce output that satisfies these
 rules. If using `scripts/validate_skill.py`, exit 0 == compliant. Without the
@@ -349,8 +357,12 @@ script, walk the rules manually against the new SKILL.md.
    Claude install, use the strict path (manual rewrite or `--target
    claude-strict`).
 5. **Forgetting `requires.tools`.** If the skill calls `bash`, declare
-   `requires.tools: [bash]`. Without this the validator (or a careful
-   reviewer) cannot warn when running under an agent that lacks `bash`.
+   `requires.tools: [bash]`. Without this the validator cannot warn when the
+   agent lacks `bash`.
+6. **Putting required runtimes in `suggests`.** Python is optional for
+   create-skill, so it belongs in `suggests.runtimes`. If your skill cannot
+   function without Python, put it in `requires.tools` (as a tool dependency)
+   or document it in `compatibility`.
 
 ---
 

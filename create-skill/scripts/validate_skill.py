@@ -47,6 +47,7 @@ REQUIRED_TOP_LEVEL = {
 }
 REQUIRES_KEYS = {"skills", "mcps", "tools"}
 RELATED_KEYS = {"skills", "commands", "mcps"}
+SUGGESTS_KEYS = {"tools", "runtimes", "mcps"}
 
 MAX_NAME_LEN = 64
 MAX_DESCRIPTION_LEN = 1024
@@ -351,6 +352,21 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
                     "related.tools is not allowed - built-in tools are either "
                     "in requires.tools or irrelevant"
                 )
+
+    sug = fm.get("suggests")
+    if sug is not None:
+        if not isinstance(sug, dict):
+            report.err("suggests must be a mapping")
+        else:
+            for k, v in sug.items():
+                if k not in SUGGESTS_KEYS:
+                    report.warn(f"suggests has unknown key: {k}")
+                elif not isinstance(v, list):
+                    report.err(f"suggests.{k} must be a list")
+                else:
+                    for item in v:
+                        if not isinstance(item, str):
+                            report.err(f"suggests.{k} entries must be strings")
 
 
 def validate_skill(skill_dir: Path) -> Report:

@@ -182,6 +182,41 @@ related:
   mcps: [playwright, filesystem]
 ```
 
+### `suggests` (object, optional)
+
+Optional dependencies that improve the skill but are not required. When these
+are available the skill can call scripts or external tools for speed; when
+absent the skill falls back to the manual agent-driven path.
+
+Three keys, all optional (omit the whole block or individual keys if nothing):
+
+```yaml
+suggests:
+  tools: []                  # optional built-in tools (e.g., lsp_diagnostics)
+  runtimes: []               # external runtimes (e.g., python>=3.10, node>=18)
+  mcps: []                   # optional MCP servers
+```
+
+**`suggests.tools`** — Built-in agent tools that are nice-to-have. The skill
+works without them but runs faster or produces richer output when present.
+
+**`suggests.runtimes`** — External runtimes the skill can leverage for
+accelerator scripts. Use free-form strings with version constraints.
+
+**`suggests.mcps`** — Optional MCP servers that enhance the skill.
+
+```yaml
+suggests:
+  tools: [lsp_diagnostics]
+  runtimes:
+    - python >=3.10
+    - node >=18.0.0
+  mcps: []
+```
+
+The validator checks structure (keys must be lists of strings) but does NOT
+warn about unknown values — these are optional by definition.
+
 ---
 
 ## Optional Fields

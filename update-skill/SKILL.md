@@ -9,7 +9,7 @@ description: >
   the change is significant enough to warrant a version change. Do NOT use for
   creating a brand-new skill from scratch - that is create-skill. Do NOT use
   for editing arbitrary markdown files that are not agent skills.
-version: 1.0.0
+version: 1.1.0
 author: kwang
 license: MIT
 tags:
@@ -23,6 +23,11 @@ requires:
 related:
   skills: [create-skill]
   commands: []
+  mcps: []
+suggests:
+  tools: []
+  runtimes:
+    - python >=3.10
   mcps: []
 metadata:
   spec: agent-skills-1.0

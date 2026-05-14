@@ -324,6 +324,10 @@ Default is symlink; use `--copy` for a literal copy.
 10. `SKILL.md` body MUST be `<= 500` lines.
 11. Every skill MUST ship at least one entry in `evals/evals.json` before
      installation.
+12. **ALL output MUST be in English.** This includes SKILL.md content, changelog
+     entries, reference documents, eval cases, and any generated artifacts.
+     The user's natural language for conversation is respected, but all
+     deliverables produced by this skill MUST be written in English.
 
 Either path (manual or accelerator) must produce output that satisfies these
 rules. If using `scripts/validate_skill.py`, exit 0 == compliant. Without the

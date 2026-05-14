@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0.0",
+  "skill_name": "review-skill",
+  "description": "Evaluate review-skill trigger accuracy",
+  "cases": [
+    {
+      "id": "pos-1",
+      "kind": "positive",
+      "prompt": "Review my create-skill skill for quality issues",
+      "should_trigger": true,
+      "assertions": ["agent loads review-skill/SKILL.md"],
+      "notes": "Explicit skill review request"
+    },
+    {
+      "id": "pos-2",
+      "kind": "positive",
+      "prompt": "Audit this skill, I think the description is weak",
+      "should_trigger": true,
+      "assertions": ["agent loads review-skill/SKILL.md"],
+      "notes": "Audit request with specific concern"
+    },
+    {
+      "id": "pos-3",
+      "kind": "positive",
+      "prompt": "Check if my skill follows the agent skills spec",
+      "should_trigger": true,
+      "assertions": ["agent loads review-skill/SKILL.md"],
+      "notes": "Spec compliance check"
+    },
+    {
+      "id": "pos-4",
+      "kind": "positive",
+      "prompt": "Does my skill have enough eval cases?",
+      "should_trigger": true,
+      "assertions": ["agent loads review-skill/SKILL.md"],
+      "notes": "Eval coverage question"
+    },
+    {
+      "id": "neg-1",
+      "kind": "negative",
+      "prompt": "Review this pull request for bugs",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or code review skill"],
+      "notes": "PR review, not skill review"
+    },
+    {
+      "id": "neg-2",
+      "kind": "negative",
+      "prompt": "Check the README for typos",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or general editing"],
+      "notes": "General markdown review"
+    },
+    {
+      "id": "neg-3",
+      "kind": "negative",
+      "prompt": "Is this Python function well written?",
+      "should_trigger": false,
+      "assertions": ["no skill loaded or code review"],
+      "notes": "Code review, not skill review"
+    },
+    {
+      "id": "edge-1",
+      "kind": "edge",
+      "prompt": "I wrote a new skill and want to know if it's good before publishing",
+      "should_trigger": true,
+      "assertions": ["agent loads review-skill/SKILL.md"],
+      "notes": "Pre-publish quality check"
+    }
+  ]
+}

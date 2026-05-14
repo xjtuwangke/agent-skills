@@ -223,7 +223,11 @@ commit a broken skill.
 5. The `## [VERSION] - DATE` block MUST be inserted at the top (newest first).
 6. Timestamps MUST be ISO-8601 UTC (`YYYY-MM-DDTHH:MM:SSZ`).
 7. Only the sections that apply (`Added`, `Changed`, `Fixed`, `Removed`,
-   `Deprecated`) may be present. Empty sections are not allowed.
+    `Deprecated`) may be present. Empty sections are not allowed.
+8. **ALL output MUST be in English.** This includes SKILL.md content, changelog
+    entries, reference documents, eval cases, and any generated artifacts.
+    The user's natural language for conversation is respected, but all
+    deliverables produced by this skill MUST be written in English.
 
 ---
 

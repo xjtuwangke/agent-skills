@@ -11,25 +11,20 @@ description: >
 version: 1.0.0
 author: kwang
 license: MIT
-tags:
-  - QA
-  - meta
-  - workflow
-requires:
-  skills: []
-  mcps: []
-  tools: [bash, read, write, edit]
-related:
-  skills: [create-skill, update-skill]
-  commands: []
-  mcps: []
-suggests:
-  tools: []
-  runtimes:
-    - python >=3.10
-  mcps: []
 metadata:
   spec: agent-skills-1.0
+  tags:
+    - QA
+    - meta
+    - workflow
+  requires:
+    skills: []
+    mcps: []
+    runtimes: [bash, read, write, edit]
+  suggests:
+    skills: []
+    mcps: []
+    runtimes: [python >=3.10]
   opencode:
     category: deep
 ---
@@ -151,10 +146,9 @@ Walk through these dimensions:
 #### B. Structural Compliance
 - [ ] `name` matches directory name (kebab-case)
 - [ ] `version` is SemVer 2.0
-- [ ] `tags` includes >= 1 role tag (UPPERCASE) and >= 1 domain tag (lowercase)
-- [ ] `requires` has `skills`, `mcps`, `tools`
-- [ ] `related` has `skills`, `commands`, `mcps` (NOT `tools`)
-- [ ] `suggests` (if present) has `tools`, `runtimes`, `mcps`
+- [ ] `metadata.tags` includes >= 1 role tag (UPPERCASE) and >= 1 domain tag (lowercase)
+- [ ] `metadata.requires` has `skills`, `mcps`, `runtimes`
+- [ ] `metadata.suggests` (if present) has `skills`, `mcps`, `runtimes`
 - [ ] SKILL.md body <= 500 lines
 
 #### C. Content Quality

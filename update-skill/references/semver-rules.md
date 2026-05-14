@@ -21,7 +21,7 @@ Given a version number `MAJOR.MINOR.PATCH`, increment the:
 Use when:
 - A rule in `## Hard Rules` is removed or changed incompatibly.
 - The skill's output format changes (e.g., used to produce JSON, now produces YAML).
-- A required tool is removed from `requires.tools`.
+- A required runtime is removed from `metadata.requires.runtimes`.
 - The trigger conditions are narrowed so prompts that used to match no longer match.
 
 ### MINOR Bump (x.Y.z → x.Y+1.0)
@@ -30,7 +30,7 @@ Use when:
 - A new feature, workflow step, or eval case is added.
 - The description is improved and eval scores rise (higher trigger rate).
 - A new reference document is added.
-- A new optional tool is added to `requires.tools`.
+- A new optional runtime is added to `metadata.requires.runtimes`.
 
 ### PATCH Bump (x.y.Z → x.y.Z+1)
 

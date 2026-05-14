@@ -44,9 +44,9 @@ available in Claude Code**. Install to both targets if you want both.
 | `user-invocable` | optional | ignored | use `metadata.claude.*` |
 | `version` | **rejected by quick_validate.py** | accepted | required |
 | `author` | **rejected** | accepted | required |
-| `tags` | **rejected** | accepted | required |
-| `requires` | **rejected** | accepted | required |
-| `related` | **rejected** | accepted | required |
+| `metadata.tags` | accepted inside `metadata` | accepted | required |
+| `metadata.requires` | accepted inside `metadata` | accepted | required |
+| `metadata.suggests` | accepted inside `metadata` | accepted | optional |
 
 ### What `--target claude-strict` Does
 
@@ -55,31 +55,40 @@ extra top-level fields would trigger warnings. The strict installer rewrites:
 
 ```yaml
 # Source
+name: create-skill
+description: "..."
 version: 1.0.0
 author: kwang
-tags: [DEV, meta]
-requires:
-  skills: []
-  mcps: []
-  tools: [bash]
-related:
-  skills: []
-  commands: []
-  mcps: []
-
-# After --target claude-strict
+license: MIT
 metadata:
-  version: 1.0.0
-  author: kwang
+  spec: agent-skills-1.0
   tags: [DEV, meta]
   requires:
     skills: []
     mcps: []
-    tools: [bash]
-  related:
+    runtimes: [bash]
+  suggests:
     skills: []
-    commands: []
     mcps: []
+    runtimes: []
+
+# After --target claude-strict
+name: create-skill
+description: "..."
+license: MIT
+metadata:
+  version: 1.0.0
+  author: kwang
+  spec: agent-skills-1.0
+  tags: [DEV, meta]
+  requires:
+    skills: []
+    mcps: []
+    runtimes: [bash]
+  suggests:
+    skills: []
+    mcps: []
+    runtimes: []
 ```
 
 OpenCode does not need this rewrite - it accepts extra top-level fields. Use
@@ -108,7 +117,7 @@ OpenCode does not need this rewrite - it accepts extra top-level fields. Use
 
 ## Tool Naming Differences
 
-`requires.tools` lists built-in agent tools. Names differ:
+`metadata.requires.runtimes` lists runtimes and built-in agent tools. Names differ:
 
 | Concept | Claude Code | OpenCode |
 |---|---|---|

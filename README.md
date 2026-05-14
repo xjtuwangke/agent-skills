@@ -152,7 +152,7 @@ Full reference: [`create-skill/references/frontmatter-spec.md`](create-skill/ref
 |---|---|---|
 | OpenCode (user)   | `--target opencode`         | `~/.config/opencode/skills/` |
 | OpenCode (project)| `--target opencode-project` | `./.opencode/skills/` |
-| Claude Code (user, strict) | `--target claude-strict` | `~/.claude/skills/`; frontmatter rewritten so `version`/`author`/`tags`/`requires`/`related` nest under `metadata`. Required because Anthropic's `quick_validate.py` rejects unknown top-level keys. |
+| Claude Code (user, strict) | `--target claude-strict` | `~/.claude/skills/`; frontmatter rewritten so `version`/`author` and `metadata.*` fields nest under `metadata`. Required because Anthropic's `quick_validate.py` rejects unknown top-level keys. |
 | Claude Code (user, literal) | `--target claude`       | `~/.claude/skills/`; literal copy. Use only if you accept Anthropic validator warnings. |
 | Claude Code (project) | `--target claude-project` | `./.claude/skills/`; literal copy. |
 

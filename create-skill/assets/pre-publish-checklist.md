@@ -16,10 +16,11 @@ some, but not all, of these.
 - [ ] `version` is SemVer 2.0.
 - [ ] `author` is non-empty.
 - [ ] `license` is set.
-- [ ] `tags` has at least one role tag (UPPERCASE) AND one domain tag
+- [ ] `metadata.tags` has at least one role tag (UPPERCASE) AND one domain tag
       (lowercase).
-- [ ] `requires` has `skills`, `mcps`, `tools` keys (empty lists are fine).
-- [ ] `related` has `skills`, `commands`, `mcps` keys (no `tools`).
+- [ ] `metadata.requires` has `skills`, `mcps`, `runtimes` keys (empty lists are
+      fine).
+- [ ] `metadata.suggests` (if present) has `skills`, `mcps`, `runtimes` keys.
 - [ ] `SKILL.md` body is under 500 lines.
 - [ ] `evals/evals.json` has at least 3 positive and 2 negative cases.
 
@@ -75,8 +76,8 @@ Run: `python create-skill/scripts/run_eval.py <skill-dir> --latest --split`.
 - [ ] Every skill listed in `requires.skills` actually exists at the target
       install location.
 - [ ] Every MCP in `requires.mcps` is documented in the team's MCP registry.
-- [ ] Every tool in `requires.tools` is a built-in name the agent recognizes
-      (validator emits warnings for unknowns).
+- [ ] Every runtime in `metadata.requires.runtimes` is a known name the agent
+      recognizes (validator emits warnings for unknowns).
 - [ ] No top-level keys outside the spec; platform-specific data lives under
       `metadata.<platform>.*`.
 
@@ -85,8 +86,8 @@ Run: `python create-skill/scripts/run_eval.py <skill-dir> --latest --split`.
 ## Cross-Platform Sanity
 
 - [ ] If installing to `--target claude-strict`, manually open the resulting
-      `~/.claude/skills/<name>/SKILL.md` and confirm `version`, `author`,
-      `tags`, `requires`, `related` all appear under `metadata`.
+      `~/.claude/skills/<name>/SKILL.md` and confirm `metadata.tags`,
+      `metadata.requires`, and `metadata.suggests` are present.
 - [ ] If skill references an OpenCode-only feature (`metadata.opencode.*`),
       add a note in `## When NOT to Use` for Claude Code users.
 

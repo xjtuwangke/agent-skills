@@ -6,7 +6,7 @@ this document, change the validator too.
 
 ---
 
-## Required Fields
+## Required Top-Level Fields
 
 ### `name` (string)
 
@@ -76,7 +76,40 @@ license: Apache-2.0
 license: Proprietary - Internal use only
 ```
 
-### `tags` (list)
+### `metadata` (object)
+
+Container for all skill metadata, dependencies, and platform-specific settings.
+
+Required keys under `metadata`:
+- `spec` — spec version this skill follows
+- `tags` — categorization labels (see below)
+- `requires` — hard dependencies (see below)
+
+Optional keys under `metadata`:
+- `suggests` — optional dependencies (see below)
+- `opencode` — OpenCode-specific settings
+- `claude` — Claude Code-specific settings
+- `custom` — project-specific settings
+
+```yaml
+metadata:
+  spec: agent-skills-1.0
+  tags:
+    - DEV
+    - meta
+  requires:
+    skills: []
+    mcps: []
+    runtimes: []
+  opencode:
+    category: deep
+```
+
+---
+
+## Metadata Fields
+
+### `metadata.tags` (list)
 
 Categorization labels. Validator enforces a minimum of one **role** tag
 (UPPERCASE) and one **domain** tag (lowercase).
@@ -113,19 +146,16 @@ Categorization labels. Validator enforces a minimum of one **role** tag
 **Free-form (lowercase, kebab-case, optional)**: any other label.
 
 ```yaml
-tags:
-  - DEV              # role
-  - api              # domain
-  - workflow         # layer
-  - stable           # maturity
-  - rate-limiting    # free-form
+metadata:
+  tags:
+    - DEV              # role
+    - api              # domain
+    - workflow         # layer
+    - stable           # maturity
+    - rate-limiting    # free-form
 ```
 
----
-
-## Dependency Fields (Required structure, lists may be empty)
-
-### `requires` (object)
+### `metadata.requires` (object)
 
 Hard dependencies. If any listed item is missing at install or load time, the
 validator fails and the agent should not activate the skill.
@@ -133,56 +163,37 @@ validator fails and the agent should not activate the skill.
 Three keys, all required (use `[]` if nothing):
 
 ```yaml
-requires:
-  skills: []                 # other skills this skill calls
-  mcps: []                   # MCP servers this skill calls
-  tools: []                  # built-in agent tools this skill calls
+metadata:
+  requires:
+    skills: []                 # other skills this skill calls
+    mcps: []                   # MCP servers this skill calls
+    runtimes: []               # runtimes / tools this skill needs
 ```
 
 **Dependency string syntax (pip / PEP 440 style)**:
 
 ```yaml
-requires:
-  skills:
-    - git-master                 # any version
-    - validator ==1.0.0          # exact
-    - validator >=1.0.0          # range
-    - validator >=1.0.0,<2.0.0   # bounded
-    - validator ~=1.2.0          # compatible release (>=1.2.0,<1.3.0)
+metadata:
+  requires:
+    skills:
+      - git-master                 # any version
+      - validator ==1.0.0          # exact
+      - validator >=1.0.0          # range
+      - validator >=1.0.0,<2.0.0   # bounded
+      - validator ~=1.2.0          # compatible release (>=1.2.0,<1.3.0)
+    runtimes:
+      - python >=3.10
+      - node >=18.0.0
 ```
 
 The separator is a single space between name and operator. Whitespace inside
 the version spec is not allowed.
 
-`tools` are built-in agent tool names. Examples: `bash`, `read`, `write`,
-`edit`, `grep`, `glob`, `webfetch`, `task`. The validator emits a warning if a
-tool name is not recognized.
+`runtimes` includes both external runtimes (Python, Node) and built-in agent
+tools (`bash`, `read`, `write`, `edit`, etc.). The validator emits a warning
+if a runtime name is not recognized.
 
-### `related` (object)
-
-Soft references for navigation and discovery. The validator does NOT enforce
-presence - missing items are fine.
-
-Three keys, all required (use `[]` if nothing):
-
-```yaml
-related:
-  skills: []                 # see-also skills
-  commands: []               # see-also slash commands (include leading /)
-  mcps: []                   # see-also MCP servers
-```
-
-Note: `related.tools` does NOT exist. Built-in tools are either needed
-(`requires.tools`) or irrelevant. There is no "see also" tool.
-
-```yaml
-related:
-  skills: [review-work, ai-slop-remover]
-  commands: ["/refactor", "/git-master"]
-  mcps: [playwright, filesystem]
-```
-
-### `suggests` (object, optional)
+### `metadata.suggests` (object, optional)
 
 Optional dependencies that improve the skill but are not required. When these
 are available the skill can call scripts or external tools for speed; when
@@ -191,27 +202,22 @@ absent the skill falls back to the manual agent-driven path.
 Three keys, all optional (omit the whole block or individual keys if nothing):
 
 ```yaml
-suggests:
-  tools: []                  # optional built-in tools (e.g., lsp_diagnostics)
-  runtimes: []               # external runtimes (e.g., python>=3.10, node>=18)
-  mcps: []                   # optional MCP servers
+metadata:
+  suggests:
+    skills: []                 # optional skills
+    mcps: []                   # optional MCP servers
+    runtimes: []               # optional runtimes / tools
 ```
 
-**`suggests.tools`** — Built-in agent tools that are nice-to-have. The skill
-works without them but runs faster or produces richer output when present.
-
-**`suggests.runtimes`** — External runtimes the skill can leverage for
-accelerator scripts. Use free-form strings with version constraints.
-
-**`suggests.mcps`** — Optional MCP servers that enhance the skill.
+**`suggests.runtimes`** — External runtimes or tools the skill can leverage.
+Use free-form strings with version constraints.
 
 ```yaml
-suggests:
-  tools: [lsp_diagnostics]
-  runtimes:
-    - python >=3.10
-    - node >=18.0.0
-  mcps: []
+metadata:
+  suggests:
+    runtimes:
+      - python >=3.10
+      - node >=18.0.0
 ```
 
 The validator checks structure (keys must be lists of strings) but does NOT
@@ -219,23 +225,7 @@ warn about unknown values — these are optional by definition.
 
 ---
 
-## Optional Fields
-
-### `metadata` (object)
-
-Free-form bag for platform-specific or skill-specific data the spec does not
-cover. Keys SHOULD be namespaced by platform.
-
-```yaml
-metadata:
-  spec: agent-skills-1.0           # which spec version this skill follows
-  opencode:
-    category: deep                 # OpenCode delegation category
-  claude:
-    disable-model-invocation: false
-  custom:
-    internal-team-owner: backend-platform
-```
+## Optional Top-Level Fields
 
 ### `compatibility` (string, optional)
 
@@ -269,8 +259,10 @@ When installing to `.claude/skills/` with `--target claude-strict`,
 name: create-skill
 version: 1.0.0
 author: kwang
-tags: [DEV, meta]
 license: MIT
+metadata:
+  spec: agent-skills-1.0
+  tags: [DEV, meta]
 
 # After --target claude-strict install
 name: create-skill
@@ -278,6 +270,7 @@ license: MIT
 metadata:
   version: 1.0.0
   author: kwang
+  spec: agent-skills-1.0
   tags: [DEV, meta]
 ```
 
@@ -300,17 +293,15 @@ description: >
 version: 0.1.0
 author: kwang
 license: MIT
-tags:
-  - DEV
-  - meta
-requires:
-  skills: []
-  mcps: []
-  tools: []
-related:
-  skills: []
-  commands: []
-  mcps: []
+metadata:
+  spec: agent-skills-1.0
+  tags:
+    - DEV
+    - meta
+  requires:
+    skills: []
+    mcps: []
+    runtimes: []
 ---
 
 # Hello

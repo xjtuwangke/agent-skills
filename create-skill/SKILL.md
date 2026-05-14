@@ -14,25 +14,20 @@ description: >
 version: 1.0.0
 author: kwang
 license: MIT
-tags:
-  - DEV
-  - meta
-  - workflow
-requires:
-  skills: []
-  mcps: []
-  tools: [bash, read, write, edit]
-related:
-  skills: []
-  commands: []
-  mcps: []
-suggests:
-  tools: []
-  runtimes:
-    - python >=3.10
-  mcps: []
 metadata:
   spec: agent-skills-1.0
+  tags:
+    - DEV
+    - meta
+    - workflow
+  requires:
+    skills: []
+    mcps: []
+    runtimes: [bash, read, write, edit]
+  suggests:
+    skills: []
+    mcps: []
+    runtimes: [python >=3.10]
   opencode:
     category: unspecified-high
 ---
@@ -359,14 +354,15 @@ Default is symlink; use `--copy` for a literal copy.
    list at least one explicit trigger phrase.
 3. `version` MUST be SemVer 2.0 (`^\d+\.\d+\.\d+(-[\w.]+)?$`).
 4. `author` MUST be a non-empty string.
-5. `tags` MUST include `>= 1` role tag (UPPERCASE) AND `>= 1` domain tag
-   (lowercase).
-6. `requires` MUST exist with keys `skills`, `mcps`, `tools` (empty lists are
-   fine).
-7. `related` MUST exist with keys `skills`, `commands`, `mcps` (NOT `tools`).
-8. `suggests` (optional) MUST have keys `tools`, `runtimes`, `mcps` if present.
-   Use it for optional accelerators (e.g., `python >=3.10`) — never put
-   required tools here.
+5. `metadata.tags` MUST include `>= 1` role tag (UPPERCASE) AND `>= 1` domain tag
+    (lowercase).
+6. `metadata.requires` MUST exist with keys `skills`, `mcps`, `runtimes` (empty
+    lists are fine).
+7. `metadata.suggests` (optional) MUST have keys `skills`, `mcps`, `runtimes` if
+    present. Use it for optional accelerators (e.g., `python >=3.10`) — never
+    put required runtimes here.
+8. `tags`, `requires`, `suggests`, and `related` MUST NOT appear at the top
+    level of the frontmatter. They belong inside `metadata`.
 9. Dependency strings MUST use pip / PEP 440 style: `name`, `name ==1.0.0`,
    `name >=1.0.0`, `name ~=1.0.0`.
 10. `SKILL.md` body MUST be `<= 500` lines.
@@ -418,13 +414,13 @@ script, walk the rules manually against the new SKILL.md.
    rejects unknown top-level keys. The OpenCode build is fine as-is; for
    Claude install, use the strict path (manual rewrite or `--target
    claude-strict`).
-5. **Forgetting `requires.tools`.** If the skill calls `bash`, declare
-   `requires.tools: [bash]`. Without this the validator cannot warn when the
-   agent lacks `bash`.
-6. **Putting required runtimes in `suggests`.** Python is optional for
-   create-skill, so it belongs in `suggests.runtimes`. If your skill cannot
-   function without Python, put it in `requires.tools` (as a tool dependency)
-   or document it in `compatibility`.
+5. **Forgetting `metadata.requires.runtimes`.** If the skill calls `bash`,
+   declare `metadata.requires.runtimes: [bash]`. Without this the validator
+   cannot warn when the agent lacks `bash`.
+6. **Putting required runtimes in `metadata.suggests`.** Python is optional for
+   create-skill, so it belongs in `metadata.suggests.runtimes`. If your skill
+   cannot function without Python, put it in `metadata.requires.runtimes` or
+   document it in `compatibility`.
 
 ---
 

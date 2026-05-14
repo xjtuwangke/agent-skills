@@ -23,10 +23,8 @@ from pathlib import Path
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+(-[\w.]+)?$")
 
-# Dependency syntax: "<name>" or "<name> <op><semver>[, <op><semver>]*"
-# Operators allowed: == != >= <= > < ~= (PEP 440 subset).
 DEP_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
-DEP_OP_RE = re.compile(r"(==|!=|>=|<=|~=|>|<)\s*(\d+\.\d+\.\d+(-[\w.]+)?)")
+DEP_OP_RE = re.compile(r"(==|!=|>=|<=|~=|>|<)\s*(\d+(?:\.\d+)+(-[\w.]+)?)")
 
 ROLE_TAGS = {"DEV", "QA", "BA", "DEVOPS"}
 DOMAIN_TAGS = {
@@ -36,18 +34,15 @@ DOMAIN_TAGS = {
 LAYER_TAGS = {"workflow", "knowledge", "template", "eval", "automation"}
 MATURITY_TAGS = {"experimental", "stable", "deprecated"}
 
-KNOWN_TOOLS = {
+KNOWN_RUNTIMES = {
     "bash", "read", "write", "edit", "grep", "glob",
     "webfetch", "websearch", "task", "todowrite",
+    "python", "node", "go", "rust", "ruby",
 }
 
-REQUIRED_TOP_LEVEL = {
-    "name", "description", "version", "author", "license", "tags",
-    "requires", "related",
-}
-REQUIRES_KEYS = {"skills", "mcps", "tools"}
-RELATED_KEYS = {"skills", "commands", "mcps"}
-SUGGESTS_KEYS = {"tools", "runtimes", "mcps"}
+REQUIRED_TOP_LEVEL = {"name", "description", "version", "author", "license", "metadata"}
+REQUIRES_KEYS = {"skills", "mcps", "runtimes"}
+SUGGESTS_KEYS = {"skills", "mcps", "runtimes"}
 
 MAX_NAME_LEN = 64
 MAX_DESCRIPTION_LEN = 1024
@@ -224,10 +219,45 @@ def validate_dep_string(s: str) -> tuple[bool, str]:
     return True, ""
 
 
+def validate_requires_or_suggests(data: dict, report: Report, section: str, required_keys: set) -> None:
+    if not isinstance(data, dict):
+        report.err(f"metadata.{section} must be a mapping")
+        return
+    for k in required_keys:
+        if k not in data:
+            report.err(f"metadata.{section}.{k} missing (use [] if empty)")
+        elif not isinstance(data[k], list):
+            report.err(f"metadata.{section}.{k} must be a list")
+        else:
+            for item in data[k]:
+                if not isinstance(item, str):
+                    report.err(f"metadata.{section}.{k} entries must be strings")
+                    continue
+                if section == "requires" and k == "runtimes":
+                    rt_name = item.split()[0] if item.split() else item
+                    if rt_name not in KNOWN_RUNTIMES:
+                        report.warn(
+                            f"metadata.requires.runtimes entry {item!r} is not a "
+                            f"known runtime"
+                        )
+                else:
+                    ok, msg = validate_dep_string(item)
+                    if not ok:
+                        report.err(f"metadata.{section}.{k}: {msg}")
+    extra = set(data.keys()) - required_keys
+    if extra:
+        report.warn(f"metadata.{section} has unknown keys: {sorted(extra)}")
+
+
 def validate_frontmatter(fm: dict, report: Report) -> None:
     for key in REQUIRED_TOP_LEVEL:
         if key not in fm:
             report.err(f"missing required field: {key}")
+
+    old_top_level = {"tags", "requires", "related", "suggests"}
+    for key in old_top_level:
+        if key in fm:
+            report.err(f"'{key}' must be inside 'metadata', not top-level")
 
     name = fm.get("name")
     if name is not None:
@@ -284,21 +314,32 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
     if lic is not None and (not isinstance(lic, str) or not lic.strip()):
         report.err("license must be a non-empty string")
 
-    tags = fm.get("tags")
+    meta = fm.get("metadata")
+    if meta is None:
+        report.err("metadata is required")
+        return
+    if not isinstance(meta, dict):
+        report.err("metadata must be a mapping")
+        return
+
+    if "spec" not in meta:
+        report.err("metadata.spec is required")
+
+    tags = meta.get("tags")
     if tags is not None:
         if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
-            report.err("tags must be a list of strings")
+            report.err("metadata.tags must be a list of strings")
         else:
             roles = [t for t in tags if t in ROLE_TAGS]
             domains = [t for t in tags if t in DOMAIN_TAGS]
             if not roles:
                 report.err(
-                    f"tags must include >=1 role tag (UPPERCASE). "
+                    f"metadata.tags must include >=1 role tag (UPPERCASE). "
                     f"Allowed: {sorted(ROLE_TAGS)}"
                 )
             if not domains:
                 report.err(
-                    f"tags must include >=1 domain tag (lowercase). "
+                    f"metadata.tags must include >=1 domain tag (lowercase). "
                     f"Allowed: {sorted(DOMAIN_TAGS)}"
                 )
             for t in tags:
@@ -307,66 +348,15 @@ def validate_frontmatter(fm: dict, report: Report) -> None:
                 if t != t.lower():
                     report.warn(f"non-role tag {t!r} should be lowercase")
 
-    req = fm.get("requires")
+    req = meta.get("requires")
     if req is not None:
-        if not isinstance(req, dict):
-            report.err("requires must be a mapping")
-        else:
-            for k in REQUIRES_KEYS:
-                if k not in req:
-                    report.err(f"requires.{k} missing (use [] if empty)")
-                elif not isinstance(req[k], list):
-                    report.err(f"requires.{k} must be a list")
-                else:
-                    for item in req[k]:
-                        if not isinstance(item, str):
-                            report.err(f"requires.{k} entries must be strings")
-                            continue
-                        if k == "tools":
-                            tool_name = item.split()[0] if item.split() else item
-                            if tool_name not in KNOWN_TOOLS:
-                                report.warn(
-                                    f"requires.tools entry {item!r} is not a "
-                                    f"known built-in tool"
-                                )
-                        else:
-                            ok, msg = validate_dep_string(item)
-                            if not ok:
-                                report.err(f"requires.{k}: {msg}")
-            extra = set(req.keys()) - REQUIRES_KEYS
-            if extra:
-                report.warn(f"requires has unknown keys: {sorted(extra)}")
+        validate_requires_or_suggests(req, report, "requires", REQUIRES_KEYS)
+    else:
+        report.err("metadata.requires is required")
 
-    rel = fm.get("related")
-    if rel is not None:
-        if not isinstance(rel, dict):
-            report.err("related must be a mapping")
-        else:
-            for k in RELATED_KEYS:
-                if k not in rel:
-                    report.err(f"related.{k} missing (use [] if empty)")
-                elif not isinstance(rel[k], list):
-                    report.err(f"related.{k} must be a list")
-            if "tools" in rel:
-                report.err(
-                    "related.tools is not allowed - built-in tools are either "
-                    "in requires.tools or irrelevant"
-                )
-
-    sug = fm.get("suggests")
+    sug = meta.get("suggests")
     if sug is not None:
-        if not isinstance(sug, dict):
-            report.err("suggests must be a mapping")
-        else:
-            for k, v in sug.items():
-                if k not in SUGGESTS_KEYS:
-                    report.warn(f"suggests has unknown key: {k}")
-                elif not isinstance(v, list):
-                    report.err(f"suggests.{k} must be a list")
-                else:
-                    for item in v:
-                        if not isinstance(item, str):
-                            report.err(f"suggests.{k} entries must be strings")
+        validate_requires_or_suggests(sug, report, "suggests", SUGGESTS_KEYS)
 
 
 def validate_skill(skill_dir: Path) -> Report:

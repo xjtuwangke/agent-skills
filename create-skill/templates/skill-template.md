@@ -19,23 +19,19 @@ description: >
 version: {{VERSION}}
 author: {{AUTHOR}}
 license: {{LICENSE}}
-tags:
-  - {{ROLE_TAG}}
-  - {{DOMAIN_TAG}}
-requires:
-  skills: []
-  mcps: []
-  tools: []
-related:
-  skills: []
-  commands: []
-  mcps: []
-suggests:
-  tools: []
-  runtimes: []
-  mcps: []
 metadata:
   spec: agent-skills-1.0
+  tags:
+    - {{ROLE_TAG}}
+    - {{DOMAIN_TAG}}
+  requires:
+    skills: []
+    mcps: []
+    runtimes: []
+  suggests:
+    skills: []
+    mcps: []
+    runtimes: []
   opencode:
     category: unspecified-high
 ---

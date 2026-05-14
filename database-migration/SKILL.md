@@ -11,27 +11,23 @@ description: >
 version: 1.0.0
 author: kwang
 license: MIT
-tags:
-  - DEV
-  - database
-  - backend
-  - workflow
-requires:
-  skills: []
-  mcps: []
-  tools: [bash, read, write, edit]
-related:
-  skills: [create-skill]
-  commands: []
-  mcps: []
-suggests:
-  tools: []
-  runtimes:
-    - python >=3.10
-    - node >=18.0.0
-  mcps: []
 metadata:
   spec: agent-skills-1.0
+  tags:
+    - DEV
+    - database
+    - backend
+    - workflow
+  requires:
+    skills: []
+    mcps: []
+    runtimes: [bash, read, write, edit]
+  suggests:
+    skills: []
+    mcps: []
+    runtimes:
+      - python >=3.10
+      - node >=18.0.0
   opencode:
     category: deep
 ---
